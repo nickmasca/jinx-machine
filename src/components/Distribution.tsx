@@ -52,7 +52,7 @@ export function Distribution({ probs }: DistributionProps) {
             domain={[0, 100]}
           />
           <Tooltip
-            formatter={(value: number) => [`${value.toFixed(1)}%`, 'Probability']}
+            formatter={(value) => [`${Number(value).toFixed(1)}%`, 'Probability']}
             contentStyle={{
               backgroundColor: '#1e1e3a',
               border: '1px solid rgba(255,255,255,0.1)',
