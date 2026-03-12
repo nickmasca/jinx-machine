@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import { Header } from './components/Header'
 import { SliderPanel } from './components/SliderPanel'
 import { ResultsGrid } from './components/ResultsGrid'
@@ -85,6 +86,7 @@ function App() {
           </div>
         </div>
       </div>
+      <Analytics />
     </div>
   )
 }
