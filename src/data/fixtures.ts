@@ -9,10 +9,9 @@ export interface Fixture {
 export const ARSENAL_CURRENT_POINTS = 64
 export const CITY_CURRENT_POINTS = 57
 
-// Arsenal remaining fixtures — 9 games from GW29 to GW38
+// Arsenal remaining fixtures — 8 games from GW29 to GW38
 export const ARSENAL_REMAINING: Fixture[] = [
   { id: 'ars-1', opponent: 'Everton',       home: true,  date: '14 Mar' },
-  { id: 'ars-2', opponent: 'Wolves',         home: false, date: '21 Mar' },
   { id: 'ars-3', opponent: 'Bournemouth',    home: true,  date: '11 Apr' },
   { id: 'ars-4', opponent: 'Man City',       home: false, date: '19 Apr' },
   { id: 'ars-5', opponent: 'Newcastle',      home: true,  date: '25 Apr' },
@@ -25,7 +24,7 @@ export const ARSENAL_REMAINING: Fixture[] = [
 // Man City remaining fixtures — 9 games from GW29 to GW38
 export const CITY_REMAINING: Fixture[] = [
   { id: 'mci-1', opponent: 'West Ham',       home: false, date: '14 Mar' },
-  { id: 'mci-2', opponent: 'Crystal Palace', home: true,  date: '21 Mar' },
+  { id: 'mci-2', opponent: 'Crystal Palace', home: true,  date: 'TBC'    },
   { id: 'mci-3', opponent: 'Chelsea',        home: false, date: '12 Apr' },
   { id: 'mci-4', opponent: 'Arsenal',        home: true,  date: '19 Apr' },
   { id: 'mci-5', opponent: 'Burnley',        home: false, date: '26 Apr' },
