@@ -10,6 +10,7 @@ export interface TrophyValues {
 interface SliderPanelProps {
   values: TrophyValues
   onChange: (key: keyof TrophyValues, value: number) => void
+  eplSynced?: boolean
 }
 
 const TROPHIES: { key: keyof TrophyValues; label: string; emoji: string }[] = [
@@ -19,7 +20,7 @@ const TROPHIES: { key: keyof TrophyValues; label: string; emoji: string }[] = [
   { key: 'lc', label: 'League Cup', emoji: '🥇' },
 ]
 
-export function SliderPanel({ values, onChange }: SliderPanelProps) {
+export function SliderPanel({ values, onChange, eplSynced }: SliderPanelProps) {
   return (
     <section className="bg-white/5 rounded-2xl p-6 border border-white/10">
       <h2 className="text-xl font-bold text-white mb-1">
@@ -30,13 +31,19 @@ export function SliderPanel({ values, onChange }: SliderPanelProps) {
       </p>
       <div className="divide-y divide-white/10">
         {TROPHIES.map(({ key, label, emoji }) => (
-          <TrophySlider
-            key={key}
-            label={label}
-            emoji={emoji}
-            value={values[key]}
-            onChange={(val) => onChange(key, val)}
-          />
+          <div key={key}>
+            <TrophySlider
+              label={label}
+              emoji={emoji}
+              value={values[key]}
+              onChange={(val) => onChange(key, val)}
+            />
+            {key === 'epl' && eplSynced && (
+              <p className="text-[#EF0107]/70 text-xs pb-2 -mt-1">
+                ↑ Synced from Title Race predictor
+              </p>
+            )}
+          </div>
         ))}
       </div>
     </section>

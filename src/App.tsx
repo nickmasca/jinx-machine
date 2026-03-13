@@ -6,15 +6,34 @@ import { ResultsGrid } from './components/ResultsGrid'
 import { Distribution } from './components/Distribution'
 import { JinxLevel } from './components/JinxLevel'
 import { ShareButton } from './components/ShareButton'
+import { TabBar } from './components/TabBar'
+import { TitleRaceTab } from './components/TitleRaceTab'
 import { quadruple } from './lib/probability'
 import { decodeFromUrl, DEFAULT_VALUES } from './lib/urlState'
+import {
+  ARSENAL_REMAINING,
+  CITY_REMAINING,
+} from './data/fixtures'
 import type { TrophyValues } from './components/SliderPanel'
+import type { Tab } from './components/TabBar'
+import type { FixtureResults } from './components/TitleRaceTab'
+import type { MatchResult } from './lib/titleRace'
+
+function buildEmptyResults(): FixtureResults {
+  return {
+    arsenal: Object.fromEntries(ARSENAL_REMAINING.map((f) => [f.id, null as MatchResult])),
+    city: Object.fromEntries(CITY_REMAINING.map((f) => [f.id, null as MatchResult])),
+  }
+}
 
 function App() {
+  const [activeTab, setActiveTab] = useState<Tab>('trophy')
   const [values, setValues] = useState<TrophyValues>(() => {
     const params = new URLSearchParams(window.location.search)
     return decodeFromUrl(params)
   })
+  const [fixtureResults, setFixtureResults] = useState<FixtureResults>(buildEmptyResults)
+  const [eplSyncedFromRace, setEplSyncedFromRace] = useState(false)
 
   // Keep URL in sync as sliders change (without adding history entries)
   useEffect(() => {
@@ -29,10 +48,28 @@ function App() {
 
   function handleChange(key: keyof TrophyValues, value: number) {
     setValues((prev) => ({ ...prev, [key]: value }))
+    if (key === 'epl') setEplSyncedFromRace(false)
   }
 
   function handleReset() {
     setValues(DEFAULT_VALUES)
+    setEplSyncedFromRace(false)
+  }
+
+  function handleResultChange(
+    team: 'arsenal' | 'city',
+    fixtureId: string,
+    result: MatchResult
+  ) {
+    setFixtureResults((prev) => ({
+      ...prev,
+      [team]: { ...prev[team], [fixtureId]: result },
+    }))
+  }
+
+  function handleEplChange(epl: number) {
+    setValues((prev) => ({ ...prev, epl }))
+    setEplSyncedFromRace(true)
   }
 
   // Convert integer percentages (0-100) to decimal (0-1) for probability functions
@@ -51,40 +88,54 @@ function App() {
       <div className="relative max-w-2xl mx-auto px-4 pb-16">
         <Header />
 
-        <div className="space-y-6">
-          {/* Sliders */}
-          <SliderPanel values={values} onChange={handleChange} />
+        <TabBar activeTab={activeTab} onChange={setActiveTab} />
 
-          {/* Results */}
-          <ResultsGrid probs={probs} />
+        {activeTab === 'trophy' ? (
+          <div className="space-y-6">
+            {/* Sliders */}
+            <SliderPanel
+              values={values}
+              onChange={handleChange}
+              eplSynced={eplSyncedFromRace}
+            />
 
-          {/* Distribution chart */}
-          <Distribution probs={probs} />
+            {/* Results */}
+            <ResultsGrid probs={probs} />
 
-          {/* Jinx level */}
-          <JinxLevel quadrupleProb={quadruple(probs)} />
+            {/* Distribution chart */}
+            <Distribution probs={probs} />
 
-          {/* Assumptions note */}
-          <p className="text-white/30 text-xs text-center px-4">
-            Assumes trophy outcomes are independent events. This is a simplifying assumption —
-            in reality, a strong squad that wins the league probably increases chances elsewhere.
-          </p>
+            {/* Jinx level */}
+            <JinxLevel quadrupleProb={quadruple(probs)} />
 
-          {/* Actions */}
-          <div className="flex flex-wrap justify-center gap-3">
-            <ShareButton values={values} />
-            <button
-              onClick={handleReset}
-              className="
-                flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold
-                bg-transparent hover:bg-white/5 border border-white/20
-                text-white/60 hover:text-white transition-all
-              "
-            >
-              🔄 Reset to defaults
-            </button>
+            {/* Assumptions note */}
+            <p className="text-white/30 text-xs text-center px-4">
+              Assumes trophy outcomes are independent events. This is a simplifying assumption —
+              in reality, a strong squad that wins the league probably increases chances elsewhere.
+            </p>
+
+            {/* Actions */}
+            <div className="flex flex-wrap justify-center gap-3">
+              <ShareButton values={values} />
+              <button
+                onClick={handleReset}
+                className="
+                  flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold
+                  bg-transparent hover:bg-white/5 border border-white/20
+                  text-white/60 hover:text-white transition-all
+                "
+              >
+                🔄 Reset to defaults
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <TitleRaceTab
+            results={fixtureResults}
+            onResultChange={handleResultChange}
+            onEplChange={handleEplChange}
+          />
+        )}
       </div>
       <Analytics />
     </div>
