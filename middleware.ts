@@ -1,8 +1,10 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
 const isLeagueRoute = createRouteMatcher(['/league(.*)', '/api/predictions(.*)', '/api/groups(.*)'])
+const isCronRoute = createRouteMatcher(['/api/cron(.*)'])
 
 export default clerkMiddleware(async (auth, req) => {
+  if (isCronRoute(req)) return // cron routes use CRON_SECRET, not Clerk
   if (isLeagueRoute(req)) {
     await auth.protect()
   }
