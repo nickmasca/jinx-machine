@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/db'
 import { fixtures, predictions, predictionScores } from '@/db/schema'
-import { eq, and, inArray } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { calcBasePoints, arsenalMultiplier } from '@/lib/scoring'
 
 export async function GET(req: Request) {
