@@ -67,6 +67,9 @@ export async function GET(req: Request) {
     const allMatches = [...scheduled, ...finished]
 
     for (const match of allMatches) {
+      // Skip TBD fixtures (e.g. CL knockout stage where teams aren't yet known)
+      if (!match.homeTeam.name || !match.awayTeam.name) continue
+
       const season = match.season.startDate.split('-')[0] // e.g. "2025"
       const row = {
         id: String(match.id),
