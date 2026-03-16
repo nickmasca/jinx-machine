@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { db } from '@/db'
-import { groups, groupMembers, users, predictionScores } from '@/db/schema'
-import { eq, sql } from 'drizzle-orm'
+import { groups, groupMembers, users } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 
 function generateInviteCode(): string {
   return Math.random().toString(36).slice(2, 10).toUpperCase()

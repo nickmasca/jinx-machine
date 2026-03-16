@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/db'
 import { fixtures } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+
 
 const COMPETITIONS = ['PL', 'CL', 'FAC', 'ELC'] as const
 const BASE_URL = 'https://api.football-data.org/v4'
