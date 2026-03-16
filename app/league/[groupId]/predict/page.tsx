@@ -34,7 +34,7 @@ export default async function PredictPage({
   const upcomingFixtures: Fixture[] = await db
     .select()
     .from(fixtures)
-    .where(and(gte(fixtures.matchDate, now), notInArray(fixtures.status, ['FINISHED', 'CANCELLED', 'POSTPONED'])))
+    .where(and(gte(fixtures.matchDate, now), notInArray(fixtures.status, ['FINISHED', 'CANCELLED', 'POSTPONED']), notInArray(fixtures.competition, ['ELC'])))
     .orderBy(fixtures.matchDate)
 
   // User's existing predictions for this group

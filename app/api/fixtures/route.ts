@@ -15,7 +15,8 @@ export async function GET() {
       and(
         gte(fixtures.matchDate, now),
         lte(fixtures.matchDate, twoWeeksAhead),
-        notInArray(fixtures.status, ['FINISHED', 'CANCELLED', 'POSTPONED'])
+        notInArray(fixtures.status, ['FINISHED', 'CANCELLED', 'POSTPONED']),
+        notInArray(fixtures.competition, ['ELC'])
       )
     )
     .orderBy(fixtures.matchDate)
