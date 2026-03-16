@@ -7,32 +7,34 @@ import Link from 'next/link'
 import { PredictionForm } from './PredictionForm'
 import type { Fixture, Prediction } from '@/db/schema'
 
-// Returns the start/end boundaries of the fixture window containing `date`.
+// Returns the end of the window containing `date`, then the end of the following window.
 // Weekend window: Friday 00:00 UTC → Monday 23:59 UTC
 // Midweek window: Tuesday 00:00 UTC → Thursday 23:59 UTC
-function getFixtureWindow(date: Date): { start: Date; end: Date; label: string } {
+function getTwoWindowEnd(date: Date): Date {
   const day = date.getUTCDay() // 0=Sun 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri 6=Sat
   const base = new Date(date)
   base.setUTCHours(0, 0, 0, 0)
 
   if ([5, 6, 0, 1].includes(day)) {
-    // Weekend: back to Friday, forward to Monday end-of-day
+    // Currently in weekend window (Fri–Mon) → extend through next midweek (Thu)
     const daysFromFriday = (day - 5 + 7) % 7
-    const start = new Date(base)
-    start.setUTCDate(base.getUTCDate() - daysFromFriday)
-    const end = new Date(start)
-    end.setUTCDate(start.getUTCDate() + 3)
-    end.setUTCHours(23, 59, 59, 999)
-    return { start, end, label: 'This Weekend' }
+    const friday = new Date(base)
+    friday.setUTCDate(base.getUTCDate() - daysFromFriday)
+    // Thu = Fri + 6
+    const thursday = new Date(friday)
+    thursday.setUTCDate(friday.getUTCDate() + 6)
+    thursday.setUTCHours(23, 59, 59, 999)
+    return thursday
   } else {
-    // Midweek: back to Tuesday, forward to Thursday end-of-day
+    // Currently in midweek window (Tue–Thu) → extend through next weekend (Mon)
     const daysFromTuesday = (day - 2 + 7) % 7
-    const start = new Date(base)
-    start.setUTCDate(base.getUTCDate() - daysFromTuesday)
-    const end = new Date(start)
-    end.setUTCDate(start.getUTCDate() + 2)
-    end.setUTCHours(23, 59, 59, 999)
-    return { start, end, label: 'Midweek Fixtures' }
+    const tuesday = new Date(base)
+    tuesday.setUTCDate(base.getUTCDate() - daysFromTuesday)
+    // Mon = Tue + 6
+    const monday = new Date(tuesday)
+    monday.setUTCDate(tuesday.getUTCDate() + 6)
+    monday.setUTCHours(23, 59, 59, 999)
+    return monday
   }
 }
 
@@ -62,7 +64,7 @@ export default async function PredictPage({
 
   const now = new Date()
 
-  // Find the next upcoming fixture to determine which window to show
+  // Find the next upcoming fixture to anchor the window calculation
   const [next] = await db
     .select({ matchDate: fixtures.matchDate })
     .from(fixtures)
@@ -76,19 +78,17 @@ export default async function PredictPage({
     .orderBy(fixtures.matchDate)
     .limit(1)
 
-  // Fetch all fixtures in that window (includes already-kicked-off games in the same round)
+  // Show: remaining fixtures in the current window + the full next window
   let upcomingFixtures: Fixture[] = []
-  let windowLabel = ''
   if (next) {
-    const window = getFixtureWindow(next.matchDate)
-    windowLabel = window.label
+    const end = getTwoWindowEnd(next.matchDate)
     upcomingFixtures = await db
       .select()
       .from(fixtures)
       .where(
         and(
-          gte(fixtures.matchDate, window.start),
-          lte(fixtures.matchDate, window.end),
+          gte(fixtures.matchDate, now),
+          lte(fixtures.matchDate, end),
           notInArray(fixtures.status, [...EXCLUDED_STATUSES]),
           notInArray(fixtures.competition, [...EXCLUDED_COMPETITIONS]),
         ),
@@ -116,11 +116,6 @@ export default async function PredictPage({
           </Link>
           <h1 className="text-3xl font-black text-white mt-2">Submit Predictions</h1>
           <p className="text-white/50 text-sm mt-1">Predictions lock at kickoff.</p>
-          {windowLabel && (
-            <p className="text-[#EF0107] text-xs font-semibold uppercase tracking-widest mt-2">
-              {windowLabel}
-            </p>
-          )}
         </div>
 
         {upcomingFixtures.length === 0 ? (
