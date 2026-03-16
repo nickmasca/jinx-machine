@@ -13,8 +13,8 @@ interface ApiMatch {
   utcDate: string
   matchday: number | null
   status: string
-  homeTeam: { name: string }
-  awayTeam: { name: string }
+  homeTeam: { name: string | null } | null
+  awayTeam: { name: string | null } | null
   score: {
     fullTime: { home: number | null; away: number | null }
   }
@@ -68,7 +68,7 @@ export async function GET(req: Request) {
 
     for (const match of allMatches) {
       // Skip TBD fixtures (e.g. CL knockout stage where teams aren't yet known)
-      if (!match.homeTeam.name || !match.awayTeam.name) continue
+      if (!match.homeTeam?.name || !match.awayTeam?.name) continue
 
       const season = match.season.startDate.split('-')[0] // e.g. "2025"
       const row = {
