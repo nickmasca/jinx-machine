@@ -1,23 +1,22 @@
+'use client'
+
 import { useState, useEffect } from 'react'
-import { Analytics } from '@vercel/analytics/react'
-import { Header } from './components/Header'
-import { SliderPanel } from './components/SliderPanel'
-import { ResultsGrid } from './components/ResultsGrid'
-import { Distribution } from './components/Distribution'
-import { JinxLevel } from './components/JinxLevel'
-import { ShareButton } from './components/ShareButton'
-import { TabBar } from './components/TabBar'
-import { TitleRaceTab } from './components/TitleRaceTab'
-import { quadruple } from './lib/probability'
-import { decodeFromUrl, DEFAULT_VALUES } from './lib/urlState'
-import {
-  ARSENAL_REMAINING,
-  CITY_REMAINING,
-} from './data/fixtures'
-import type { TrophyValues } from './components/SliderPanel'
-import type { Tab } from './components/TabBar'
-import type { FixtureResults } from './components/TitleRaceTab'
-import type { MatchResult } from './lib/titleRace'
+import { Header } from '@/components/Header'
+import { SliderPanel } from '@/components/SliderPanel'
+import { ResultsGrid } from '@/components/ResultsGrid'
+import { Distribution } from '@/components/Distribution'
+import { JinxLevel } from '@/components/JinxLevel'
+import { ShareButton } from '@/components/ShareButton'
+import { TabBar } from '@/components/TabBar'
+import { TitleRaceTab } from '@/components/TitleRaceTab'
+import { quadruple } from '@/lib/probability'
+import { decodeFromUrl, DEFAULT_VALUES } from '@/lib/urlState'
+import { ARSENAL_REMAINING, CITY_REMAINING } from '@/data/fixtures'
+import type { TrophyValues } from '@/components/SliderPanel'
+import type { Tab } from '@/components/TabBar'
+import type { FixtureResults } from '@/components/TitleRaceTab'
+import type { MatchResult } from '@/lib/titleRace'
+import Link from 'next/link'
 
 function buildEmptyResults(): FixtureResults {
   return {
@@ -26,16 +25,16 @@ function buildEmptyResults(): FixtureResults {
   }
 }
 
-function App() {
+export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>('trophy')
   const [values, setValues] = useState<TrophyValues>(() => {
+    if (typeof window === 'undefined') return DEFAULT_VALUES
     const params = new URLSearchParams(window.location.search)
     return decodeFromUrl(params)
   })
   const [fixtureResults, setFixtureResults] = useState<FixtureResults>(buildEmptyResults)
   const [eplSyncedFromRace, setEplSyncedFromRace] = useState(false)
 
-  // Keep URL in sync as sliders change (without adding history entries)
   useEffect(() => {
     const params = new URLSearchParams()
     params.set('epl', String(values.epl))
@@ -72,7 +71,6 @@ function App() {
     setEplSyncedFromRace(true)
   }
 
-  // Convert integer percentages (0-100) to decimal (0-1) for probability functions
   const probs = {
     epl: values.epl / 100,
     cl: values.cl / 100,
@@ -82,39 +80,33 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#1a1a2e] text-white">
-      {/* Subtle Arsenal-red gradient glow at the top */}
       <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-[#EF0107]/10 to-transparent pointer-events-none" />
 
       <div className="relative max-w-2xl mx-auto px-4 pb-16">
         <Header />
 
+        {/* League nav link */}
+        <div className="flex justify-end mb-4">
+          <Link
+            href="/league"
+            className="text-sm font-semibold text-white/50 hover:text-white transition-colors border border-white/10 hover:border-white/30 rounded-lg px-3 py-1.5"
+          >
+            🏆 Jinx League
+          </Link>
+        </div>
+
         <TabBar activeTab={activeTab} onChange={setActiveTab} />
 
         {activeTab === 'trophy' ? (
           <div className="space-y-6">
-            {/* Sliders */}
-            <SliderPanel
-              values={values}
-              onChange={handleChange}
-              eplSynced={eplSyncedFromRace}
-            />
-
-            {/* Results */}
+            <SliderPanel values={values} onChange={handleChange} eplSynced={eplSyncedFromRace} />
             <ResultsGrid probs={probs} />
-
-            {/* Distribution chart */}
             <Distribution probs={probs} />
-
-            {/* Jinx level */}
             <JinxLevel quadrupleProb={quadruple(probs)} />
-
-            {/* Assumptions note */}
             <p className="text-white/30 text-xs text-center px-4">
               Assumes trophy outcomes are independent events. This is a simplifying assumption —
               in reality, a strong squad that wins the league probably increases chances elsewhere.
             </p>
-
-            {/* Actions */}
             <div className="flex flex-wrap justify-center gap-3">
               <ShareButton values={values} />
               <button
@@ -137,9 +129,6 @@ function App() {
           />
         )}
       </div>
-      <Analytics />
     </div>
   )
 }
-
-export default App
