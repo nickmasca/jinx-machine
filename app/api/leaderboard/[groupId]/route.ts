@@ -4,14 +4,7 @@ import { db } from '@/db'
 import { groupMembers, predictionScores, users } from '@/db/schema'
 import { eq, sql } from 'drizzle-orm'
 
-export interface LeaderboardEntry {
-  userId: string
-  username: string
-  totalPoints: number
-  correctScores: number
-  correctOutcomes: number
-  predictions: number
-}
+import type { LeaderboardEntry } from '@/types/leaderboard'
 
 export async function GET(
   _req: NextRequest,

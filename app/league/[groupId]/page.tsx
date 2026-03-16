@@ -4,7 +4,7 @@ import { groups, groupMembers } from '@/db/schema'
 import { eq, and } from 'drizzle-orm'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import type { LeaderboardEntry } from '@/app/api/leaderboard/[groupId]/route'
+import type { LeaderboardEntry } from '@/types/leaderboard'
 
 async function getLeaderboard(groupId: string): Promise<LeaderboardEntry[]> {
   const baseUrl = process.env.VERCEL_URL
