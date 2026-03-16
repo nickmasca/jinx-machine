@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/db'
 import { fixtures, predictions, groups, groupMembers } from '@/db/schema'
-import { and, gte, notInArray } from 'drizzle-orm'
+import { and, eq, gte, notInArray } from 'drizzle-orm'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { PredictionForm } from './PredictionForm'
