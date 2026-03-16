@@ -67,15 +67,18 @@ export async function GET(req: Request) {
     const allMatches = [...scheduled, ...finished]
 
     for (const match of allMatches) {
-      // Skip TBD fixtures (e.g. CL knockout stage where teams aren't yet known)
-      if (!match.homeTeam?.name || !match.awayTeam?.name) continue
+      // Skip TBD fixtures (CL knockout stage where teams aren't yet known).
+      // football-data.org v4: homeTeam object is always present but name is null when TBD.
+      const homeTeamName = match.homeTeam?.name
+      const awayTeamName = match.awayTeam?.name
+      if (!homeTeamName || !awayTeamName) continue
 
       const season = match.season.startDate.split('-')[0] // e.g. "2025"
       const row = {
         id: String(match.id),
         competition: match.competition.code,
-        homeTeam: match.homeTeam.name,
-        awayTeam: match.awayTeam.name,
+        homeTeam: homeTeamName,
+        awayTeam: awayTeamName,
         matchDate: new Date(match.utcDate),
         matchday: match.matchday ?? null,
         season,
