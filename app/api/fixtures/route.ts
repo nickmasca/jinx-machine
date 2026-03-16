@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/db'
 import { fixtures } from '@/db/schema'
-import { gte, lte, and, eq } from 'drizzle-orm'
+import { gte, lte, and, notInArray } from 'drizzle-orm'
 
 // GET /api/fixtures?groupId=xxx — upcoming fixtures open for prediction
 export async function GET() {
@@ -15,7 +15,7 @@ export async function GET() {
       and(
         gte(fixtures.matchDate, now),
         lte(fixtures.matchDate, twoWeeksAhead),
-        eq(fixtures.status, 'SCHEDULED')
+        notInArray(fixtures.status, ['FINISHED', 'CANCELLED', 'POSTPONED'])
       )
     )
     .orderBy(fixtures.matchDate)

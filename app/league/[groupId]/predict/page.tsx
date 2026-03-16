@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/db'
 import { fixtures, predictions, groups, groupMembers } from '@/db/schema'
-import { and, eq, gte } from 'drizzle-orm'
+import { and, gte, notInArray } from 'drizzle-orm'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { PredictionForm } from './PredictionForm'
@@ -34,7 +34,7 @@ export default async function PredictPage({
   const upcomingFixtures: Fixture[] = await db
     .select()
     .from(fixtures)
-    .where(and(gte(fixtures.matchDate, now), eq(fixtures.status, 'SCHEDULED')))
+    .where(and(gte(fixtures.matchDate, now), notInArray(fixtures.status, ['FINISHED', 'CANCELLED', 'POSTPONED'])))
     .orderBy(fixtures.matchDate)
 
   // User's existing predictions for this group
